@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BB-8 Droid Missions</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section id="mentorOverlay" class="mentor-overlay" aria-label="Choose your Star Wars mentor">
+      <div class="mentor-dialog">
+        <p class="eyebrow">Choose Your Mentor</p>
+        <h2>Who will guide BB-8?</h2>
+        <p>Pick one helper before the mission begins. Their power works during every mission.</p>
+        <div id="mentorChoices" class="mentor-grid"></div>
+      </div>
+    </section>
+
+    <main class="app-shell">
+      <section class="workspace" aria-label="Sphero mission coding workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">BB-8 Droid Missions</p>
+            <h1>Code the droid. Save the galaxy.</h1>
+          </div>
+          <div class="status-strip" aria-live="polite">
+            <span id="missionStatus">Ready</span>
+            <strong id="scoreReadout">0 / 3 goals</strong>
+          </div>
+        </header>
+
+        <section class="arena-panel" aria-label="3D top-down mission simulator">
+          <div class="arena-toolbar">
+            <div>
+              <h2 id="missionTitle">Loading mission</h2>
+              <p id="missionBrief">Choose a mission and send BB-8 rolling.</p>
+            </div>
+            <div class="mission-select-wrap">
+              <label for="missionSelect">Mission</label>
+              <select id="missionSelect"></select>
+            </div>
+          </div>
+          <canvas id="arenaCanvas" width="1280" height="780" aria-label="3D top-down BB-8 mission arena"></canvas>
+        </section>
+
+        <section class="code-panel" aria-label="Python coding panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Python commands</h2>
+              <p>Use simple Python-style commands. Indentation matters.</p>
+            </div>
+            <div class="action-row">
+              <button id="runBtn" type="button">Run Code</button>
+              <button id="stopBtn" type="button">Stop</button>
+              <button id="resetBtn" type="button">Reset Robot</button>
+              <button id="hintBtn" type="button">Power Hint</button>
+              <button id="resetCodeBtn" type="button">Starter Code</button>
+            </div>
+          </div>
+          <textarea id="codeEditor" spellcheck="false" aria-label="Python editor"></textarea>
+        </section>
+
+        <aside class="side-panel">
+          <section class="mentor-card" aria-label="Current mentor">
+            <h2>Mentor</h2>
+            <p id="mentorReadout">Choose a mentor to begin.</p>
+          </section>
+
+          <section class="rank-card" aria-label="Rank code word">
+            <h2>Rank Code Word</h2>
+            <p id="rankWordOutput">Complete missions to collect code letters.</p>
+            <div class="rank-guess-row">
+              <input id="rankGuessInput" type="text" maxlength="8" placeholder="Guess word" aria-label="Guess rank code word" />
+              <button id="rankGuessBtn" type="button">Unlock Rank</button>
+            </div>
+            <p id="rankGuessOutput">Four attempts per rank.</p>
+          </section>
+
+          <section class="command-list" aria-label="Available commands">
+            <h2>Commands</h2>
+            <ul>
+              <li><code>roll(speed, heading, seconds)</code></li>
+              <li><code>turn(degrees)</code></li>
+              <li><code>set_heading(degrees)</code></li>
+              <li><code>set_color("orange")</code></li>
+              <li><code>flash_colour_code("orange-blue")</code></li>
+              <li><code>collect()</code></li>
+              <li><code>wait(seconds)</code></li>
+              <li><code>stop()</code></li>
+              <li><code>say("message")</code></li>
+              <li><code>for step in range(1, 3):</code></li>
+              <li><code>if step == 1:</code></li>
+            </ul>
+          </section>
+
+          <section class="mission-card" aria-label="Mission objectives">
+            <h2>Objectives</h2>
+            <p id="storyOutput" class="story-output"></p>
+            <ol id="objectiveList"></ol>
+          </section>
+
+          <section class="hint-card" aria-label="Power hint">
+            <h2>Power Hint</h2>
+            <p id="hintOutput">Complete a mission to unlock the next hint.</p>
+          </section>
+
+          <section class="log-card" aria-label="Run log">
+            <h2>Run log</h2>
+            <div id="logOutput" class="log-output" aria-live="polite"></div>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

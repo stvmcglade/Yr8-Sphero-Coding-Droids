@@ -1,0 +1,486 @@
+:root {
+  --ink: #eef8f2;
+  --muted: #b8c4c9;
+  --paper: #05070c;
+  --panel: #101820;
+  --line: #314557;
+  --green: #50b8ff;
+  --red: #d33f49;
+  --yellow: #f7c948;
+  --teal: #3ddbd9;
+  --blue: #35a7ff;
+  --pink: #f47b20;
+  --shadow: 0 18px 46px rgba(0, 0, 0, 0.32);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 12% 16%, rgba(80, 184, 255, 0.18), transparent 18rem),
+    radial-gradient(circle at 82% 8%, rgba(244, 123, 32, 0.16), transparent 15rem),
+    radial-gradient(circle at 48% 92%, rgba(247, 201, 72, 0.1), transparent 18rem),
+    linear-gradient(90deg, rgba(80, 184, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    var(--paper);
+  background-size: auto, auto, auto, 34px 34px, 34px 34px, auto;
+  color: var(--ink);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+button,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+select {
+  border-radius: 8px;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.mentor-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(3, 5, 9, 0.86);
+  backdrop-filter: blur(8px);
+}
+
+.mentor-overlay.hidden {
+  display: none;
+}
+
+.mentor-dialog {
+  width: min(760px, 100%);
+  padding: 22px;
+  border: 1px solid rgba(80, 184, 255, 0.4);
+  border-radius: 8px;
+  background: #101820;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+}
+
+.mentor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.mentor-choice {
+  display: grid;
+  gap: 8px;
+  min-height: 120px;
+  padding: 16px;
+  border: 1px solid rgba(80, 184, 255, 0.34);
+  background: rgba(238, 248, 242, 0.08);
+  color: var(--ink);
+  text-align: left;
+}
+
+.mentor-choice:hover {
+  border-color: #50b8ff;
+  background: rgba(80, 184, 255, 0.16);
+}
+
+.mentor-choice span {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.app-shell {
+  width: 100%;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.95fr) minmax(300px, 0.55fr);
+  grid-template-rows: auto minmax(520px, 1.7fr) auto;
+  gap: 12px;
+  min-height: calc(100vh - 24px);
+}
+
+.topbar,
+.arena-panel,
+.code-panel,
+.side-panel > section {
+  background: rgba(12, 18, 25, 0.92);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: clamp(1.35rem, 2rem, 2.45rem);
+  line-height: 1.03;
+}
+
+h2 {
+  margin-bottom: 6px;
+  font-size: 1.05rem;
+}
+
+p {
+  color: var(--muted);
+}
+
+.status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 230px;
+}
+
+.status-strip span,
+.status-strip strong {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(80, 184, 255, 0.16);
+  color: #a8dcff;
+}
+
+.status-strip strong {
+  background: rgba(244, 123, 32, 0.2);
+  color: #ffd0a8;
+}
+
+.arena-panel {
+  position: relative;
+  grid-column: 1 / -1;
+  min-height: 520px;
+  overflow: hidden;
+  background: #070910;
+}
+
+.arena-toolbar {
+  position: absolute;
+  z-index: 2;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid rgba(80, 184, 255, 0.32);
+  border-radius: 8px;
+  background: rgba(10, 15, 18, 0.78);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.34);
+}
+
+.arena-toolbar h2,
+.arena-toolbar p {
+  max-width: min(760px, 62vw);
+}
+
+.mission-select-wrap {
+  display: grid;
+  gap: 5px;
+  min-width: 190px;
+}
+
+label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+select {
+  min-height: 42px;
+  border: 1px solid #46605f;
+  background: #0c1316;
+  color: var(--ink);
+  padding: 0 12px;
+}
+
+#arenaCanvas {
+  display: block;
+  width: 100%;
+  height: clamp(520px, 64vh, 780px);
+  background: #070910;
+}
+
+.code-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 330px;
+  overflow: hidden;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-heading p {
+  margin-bottom: 0;
+}
+
+#resetCodeBtn,
+#resetBtn,
+#stopBtn,
+#hintBtn {
+  min-height: 40px;
+  padding: 0 12px;
+  background: rgba(238, 248, 242, 0.1);
+  color: #eef8f2;
+  border: 1px solid rgba(238, 248, 242, 0.15);
+}
+
+#codeEditor {
+  flex: 1;
+  min-height: 220px;
+  width: 100%;
+  resize: vertical;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  outline: none;
+  padding: 16px;
+  background: #070b0d;
+  color: #dffcf3;
+  font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  tab-size: 2;
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+#runBtn {
+  min-height: 42px;
+  padding: 0 18px;
+  background: var(--green);
+  color: #06101a;
+}
+
+.side-panel {
+  display: grid;
+  grid-template-rows: auto auto auto auto minmax(220px, 1fr);
+  gap: 12px;
+  min-height: 0;
+}
+
+.side-panel > section {
+  padding: 16px;
+}
+
+.command-list ul,
+.mission-card ol {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.story-output,
+#hintOutput,
+#mentorReadout,
+#rankWordOutput,
+#rankGuessOutput {
+  margin-bottom: 10px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+#rankWordOutput {
+  color: #ffd0a8;
+  font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+  font-size: 1.1rem;
+  font-weight: 850;
+}
+
+.rank-guess-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+#rankGuessInput {
+  min-height: 40px;
+  width: 100%;
+  border: 1px solid #46605f;
+  border-radius: 8px;
+  background: #0c1316;
+  color: var(--ink);
+  padding: 0 10px;
+  text-transform: uppercase;
+}
+
+#rankGuessBtn {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid rgba(80, 184, 255, 0.34);
+  background: rgba(80, 184, 255, 0.14);
+  color: #eef8f2;
+}
+
+.command-list li,
+.mission-card li {
+  margin: 8px 0;
+  color: var(--muted);
+}
+
+code {
+  color: #74e7ff;
+  font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+  font-size: 0.92em;
+}
+
+.mission-card li.complete {
+  color: #a8dcff;
+  font-weight: 800;
+}
+
+.mission-card li.complete::marker {
+  content: "done ";
+}
+
+.log-card {
+  min-height: 0;
+}
+
+.log-output {
+  min-height: 190px;
+  max-height: 330px;
+  overflow: auto;
+  border: 1px solid #314c4a;
+  border-radius: 8px;
+  background: #050708;
+  padding: 12px;
+  color: #dffcf3;
+  font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.log-line {
+  margin-bottom: 7px;
+}
+
+.log-line.error {
+  color: #ffb4b4;
+}
+
+.log-line.success {
+  color: #8df5c5;
+}
+
+@media (max-width: 980px) {
+  .workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+  }
+
+  .side-panel {
+    grid-template-rows: auto;
+  }
+}
+
+@media (max-width: 680px) {
+  .app-shell {
+    padding: 10px;
+  }
+
+  .workspace {
+    min-height: calc(100vh - 20px);
+  }
+
+  .topbar,
+  .arena-toolbar,
+  .panel-heading {
+    flex-direction: column;
+  }
+
+  .status-strip,
+  .mission-select-wrap {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .arena-panel {
+    min-height: 500px;
+  }
+
+  .arena-toolbar h2,
+  .arena-toolbar p {
+    max-width: 100%;
+  }
+
+  #arenaCanvas {
+    height: 500px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .mentor-grid {
+    grid-template-columns: 1fr;
+  }
+}
