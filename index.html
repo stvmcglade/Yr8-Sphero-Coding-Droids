@@ -3,25 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BB-8 Droid Missions</title>
+    <title>Mars Rover Missions</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <section id="mentorOverlay" class="mentor-overlay" aria-label="Choose your Star Wars mentor">
+    <section id="mentorOverlay" class="mentor-overlay" aria-label="Enter your student name">
       <div class="mentor-dialog">
-        <p class="eyebrow">Choose Your Mentor</p>
-        <h2>Who will guide BB-8?</h2>
-        <p>Pick one helper before the mission begins. Their power works during every mission.</p>
-        <div id="mentorChoices" class="mentor-grid"></div>
+        <p class="eyebrow">Start Mission Log</p>
+        <h2>Enter your name</h2>
+        <p>Your progress, completed missions, and saved code will stay on this computer so you can continue later.</p>
+        <div class="name-entry">
+          <input id="studentNameInput" type="text" maxlength="40" placeholder="Student name" aria-label="Student name" />
+          <button id="saveNameBtn" type="button">Begin Missions</button>
+        </div>
       </div>
     </section>
 
     <main class="app-shell">
-      <section class="workspace" aria-label="Sphero mission coding workspace">
+      <section class="workspace" aria-label="Mars rover mission coding workspace">
         <header class="topbar">
           <div>
-            <p class="eyebrow">BB-8 Droid Missions</p>
-            <h1>Code the droid. Save the galaxy.</h1>
+            <p class="eyebrow">Mars Rover Missions</p>
+            <h1>Code the rover. Explore Mars.</h1>
           </div>
           <div class="status-strip" aria-live="polite">
             <span id="missionStatus">Ready</span>
@@ -33,14 +36,28 @@
           <div class="arena-toolbar">
             <div>
               <h2 id="missionTitle">Loading mission</h2>
-              <p id="missionBrief">Choose a mission and send BB-8 rolling.</p>
+              <p id="missionBrief">Choose a mission and send your rover across the Martian surface.</p>
             </div>
             <div class="mission-select-wrap">
               <label for="missionSelect">Mission</label>
               <select id="missionSelect"></select>
             </div>
           </div>
-          <canvas id="arenaCanvas" width="1280" height="780" aria-label="3D top-down BB-8 mission arena"></canvas>
+          <section class="compass-card" aria-label="Heading compass reference">
+            <div class="compass-face">
+              <div id="compassNeedle" class="compass-needle"></div>
+              <span class="compass-label north">0</span>
+              <span class="compass-label north-east">45</span>
+              <span class="compass-label east">90</span>
+              <span class="compass-label south-east">135</span>
+              <span class="compass-label south">180</span>
+              <span class="compass-label south-west">225</span>
+              <span class="compass-label west">270</span>
+              <span class="compass-label north-west">315</span>
+            </div>
+            <p id="headingReadout" class="heading-readout">Heading: 0</p>
+          </section>
+          <canvas id="arenaCanvas" width="1280" height="780" aria-label="3D top-down Mars rover mission arena"></canvas>
         </section>
 
         <section class="code-panel" aria-label="Python coding panel">
@@ -61,19 +78,24 @@
         </section>
 
         <aside class="side-panel">
-          <section class="mentor-card" aria-label="Current mentor">
-            <h2>Mentor</h2>
-            <p id="mentorReadout">Choose a mentor to begin.</p>
+          <section class="mission-card" aria-label="Mission objectives">
+            <h2>Objectives</h2>
+            <p id="storyOutput" class="story-output"></p>
+            <ol id="objectiveList"></ol>
           </section>
 
-          <section class="rank-card" aria-label="Rank code word">
-            <h2>Rank Code Word</h2>
-            <p id="rankWordOutput">Complete missions to collect code letters.</p>
+          <section class="mentor-card" aria-label="Student mission log">
+            <h2>Student</h2>
+            <p id="mentorReadout"></p>
+          </section>
+
+          <section class="rank-card" aria-label="Rank certificate">
+            <h2>Rank Certificate</h2>
+            <p id="rankWordOutput">Complete all four missions in a rank to unlock a certificate.</p>
             <div class="rank-guess-row">
-              <input id="rankGuessInput" type="text" maxlength="8" placeholder="Guess word" aria-label="Guess rank code word" />
-              <button id="rankGuessBtn" type="button">Unlock Rank</button>
+              <button id="rankGuessBtn" type="button">Download Certificate</button>
             </div>
-            <p id="rankGuessOutput">Four attempts per rank.</p>
+            <p id="rankGuessOutput">Certificates are personalised with the student name.</p>
           </section>
 
           <section class="command-list" aria-label="Available commands">
@@ -93,15 +115,9 @@
             </ul>
           </section>
 
-          <section class="mission-card" aria-label="Mission objectives">
-            <h2>Objectives</h2>
-            <p id="storyOutput" class="story-output"></p>
-            <ol id="objectiveList"></ol>
-          </section>
-
           <section class="hint-card" aria-label="Power hint">
             <h2>Power Hint</h2>
-            <p id="hintOutput">Complete a mission to unlock the next hint.</p>
+            <p id="hintOutput">Hints unlock as you complete missions.</p>
           </section>
 
           <section class="log-card" aria-label="Run log">

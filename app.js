@@ -15,81 +15,48 @@ const resetCodeBtn = document.querySelector("#resetCodeBtn");
 const hintBtn = document.querySelector("#hintBtn");
 const hintOutput = document.querySelector("#hintOutput");
 const storyOutput = document.querySelector("#storyOutput");
+const compassNeedle = document.querySelector("#compassNeedle");
+const headingReadout = document.querySelector("#headingReadout");
 const mentorOverlay = document.querySelector("#mentorOverlay");
-const mentorChoices = document.querySelector("#mentorChoices");
+const studentNameInput = document.querySelector("#studentNameInput");
+const saveNameBtn = document.querySelector("#saveNameBtn");
 const mentorReadout = document.querySelector("#mentorReadout");
 const rankWordOutput = document.querySelector("#rankWordOutput");
-const rankGuessInput = document.querySelector("#rankGuessInput");
 const rankGuessBtn = document.querySelector("#rankGuessBtn");
 const rankGuessOutput = document.querySelector("#rankGuessOutput");
 
 const WORLD = { width: 920, height: 620 };
 const robotRadius = 22;
 const missionCompleteDelay = 250;
-const rankCodeWords = ["HOPE", "JEDI", "SITH", "STAR"];
-const mentors = [
-  {
-    id: "luke",
-    name: "Luke Skywalker",
-    power: "Force Path: pass through two hazards per mission and reveal the first rank-code letter.",
-    setup(robotState) {
-      robotState.wallPasses = 2;
-    },
-  },
-  {
-    id: "leia",
-    name: "Leia Organa",
-    power: "Resistance Intel: unlock every power hint and reveal the second rank-code letter.",
-    setup(robotState) {
-      robotState.wallPasses = 0;
-    },
-  },
-  {
-    id: "rey",
-    name: "Rey Skywalker",
-    power: "Scavenger Sense: collect from further away and reveal an extra rank-code letter after one mission.",
-    setup(robotState) {
-      robotState.collectBoost = 18;
-      robotState.wallPasses = 0;
-    },
-  },
-  {
-    id: "finn",
-    name: "Finn",
-    power: "First Order Codes: ignore one hazard per mission and one wrong word guess per rank.",
-    setup(robotState) {
-      robotState.wallPasses = 1;
-    },
-  },
-];
+const STORAGE_KEY = "mars-rover-missions-progress-v1";
 
 const missions = buildMissions();
 
 function buildMissions() {
   const ranks = [
-    { title: "Episode VII Rank: Jakku Scavenger", requiresLoop: false, requiresIfElse: false },
-    { title: "Episode VIII Rank: Resistance Courier", requiresLoop: false, requiresIfElse: false },
-    { title: "Episode IX Rank: Skywalker Scout", requiresLoop: true, requiresIfElse: true },
-    { title: "Saga Legend Rank: Master Astromech", requiresLoop: true, requiresIfElse: true },
+    { title: "Rank 1: Landing Site Cadet", requiresLoop: false, requiresIfElse: false },
+    { title: "Rank 2: Terrain Survey Operator", requiresLoop: false, requiresIfElse: false },
+    { title: "Rank 3: Sample Return Specialist", requiresLoop: true, requiresIfElse: true },
+    { title: "Rank 4: Mars Mission Lead", requiresLoop: true, requiresIfElse: true },
   ];
 
   const routes = [
     {
-      id: "pods",
-      theme: "rescue",
+      id: "beacons",
+      theme: "mars",
       start: { x: 96, y: 520, heading: 0, color: "#f47b20" },
       points: [
-        { x: 230, y: 445, label: "Pod A", kind: "capsule", action: "flash", code: "orange-blue", objective: "Flash orange-blue at escape pod A" },
-        { x: 500, y: 300, label: "Pod B", kind: "capsule", action: "flash", code: "blue-blue", objective: "Flash blue-blue at escape pod B" },
-        { x: 770, y: 145, label: "Pod C", kind: "capsule", action: "flash", code: "orange-white", objective: "Flash orange-white at escape pod C" },
+        { x: 230, y: 445, label: "Beacon A", kind: "capsule", action: "flash", code: "orange-blue", objective: "Flash orange-blue at navigation beacon A" },
+        { x: 500, y: 300, label: "Beacon B", kind: "capsule", action: "flash", code: "blue-blue", objective: "Flash blue-blue at navigation beacon B" },
+        { x: 770, y: 145, label: "Beacon C", kind: "capsule", action: "flash", code: "orange-white", objective: "Flash orange-white at navigation beacon C" },
       ],
       hazards: [
-        { x: 310, y: 486, w: 185, h: 42, kind: "asteroid" },
-        { x: 392, y: 334, w: 50, h: 140, kind: "asteroid" },
-        { x: 594, y: 180, w: 54, h: 210, kind: "asteroid" },
+        { x: 310, y: 486, w: 185, h: 42, kind: "rock" },
+        { x: 392, y: 334, w: 50, h: 140, kind: "rock" },
+        { x: 594, y: 180, w: 54, h: 210, kind: "rock" },
       ],
       decorations: [
-        { kind: "command", x: 112, y: 470, label: "Rebel Base" },
+        { kind: "command", x: 112, y: 470, label: "Base Camp" },
         { kind: "crater", x: 358, y: 225, size: 42 },
       ],
       moves: [
@@ -100,21 +67,21 @@ function buildMissions() {
     },
     {
       id: "relay",
-      theme: "satellite",
+      theme: "mars",
       start: { x: 140, y: 500, heading: 0, color: "#f47b20" },
       points: [
-        { x: 140, y: 168, label: "R1", kind: "satellite", action: "flash", code: "blue-orange", objective: "Transmit blue-orange to relay R1" },
-        { x: 760, y: 168, label: "R2", kind: "satellite", action: "flash", code: "blue-white", objective: "Transmit blue-white to relay R2" },
-        { x: 760, y: 500, label: "R3", kind: "satellite", action: "flash", code: "orange-orange", objective: "Transmit orange-orange to relay R3" },
-        { x: 140, y: 500, label: "Dock", kind: "dock", action: "collect", objective: "Collect docking clearance" },
+        { x: 140, y: 168, label: "Relay 1", kind: "satellite", action: "flash", code: "blue-orange", objective: "Transmit blue-orange to relay 1" },
+        { x: 760, y: 168, label: "Relay 2", kind: "satellite", action: "flash", code: "blue-white", objective: "Transmit blue-white to relay 2" },
+        { x: 760, y: 500, label: "Relay 3", kind: "satellite", action: "flash", code: "orange-orange", objective: "Transmit orange-orange to relay 3" },
+        { x: 140, y: 500, label: "Depot", kind: "dock", action: "collect", objective: "Collect the data package from the return depot" },
       ],
       hazards: [
-        { x: 282, y: 252, w: 360, h: 86, kind: "radiation" },
+        { x: 282, y: 252, w: 360, h: 86, kind: "sand" },
         { x: 410, y: 392, w: 110, h: 74, kind: "debris" },
       ],
       decorations: [
-        { kind: "orbit", x: 450, y: 334, w: 650, h: 360 },
-        { kind: "planet", x: 438, y: 332, size: 72 },
+        { kind: "command", x: 132, y: 506, label: "Comms Hub" },
+        { kind: "crater", x: 510, y: 298, size: 46 },
       ],
       moves: [
         [70, 270, 3.8],
@@ -124,13 +91,13 @@ function buildMissions() {
       ],
     },
     {
-      id: "salvage",
+      id: "samples",
       theme: "mars",
       start: { x: 86, y: 92, heading: 0, color: "#f47b20" },
       points: [
-        { x: 290, y: 120, label: "Scrap", kind: "sample", action: "collect", objective: "Collect hyperdrive scrap" },
-        { x: 426, y: 482, label: "Fuel", kind: "sample", action: "collect", objective: "Collect fuel cell" },
-        { x: 792, y: 342, label: "Data", kind: "sample", action: "collect", objective: "Collect data core" },
+        { x: 290, y: 120, label: "Rock", kind: "sample", action: "collect", objective: "Collect the basalt rock sample" },
+        { x: 426, y: 482, label: "Ice", kind: "sample", action: "collect", objective: "Collect the buried ice sample" },
+        { x: 792, y: 342, label: "Soil", kind: "sample", action: "collect", objective: "Collect the red soil sample" },
       ],
       hazards: [
         { x: 178, y: 212, w: 130, h: 64, kind: "dust" },
@@ -139,7 +106,7 @@ function buildMissions() {
         { x: 676, y: 96, w: 72, h: 188, kind: "dust" },
       ],
       decorations: [
-        { kind: "habitat", x: 112, y: 96, label: "Outpost" },
+        { kind: "habitat", x: 112, y: 96, label: "Lab" },
         { kind: "crater", x: 560, y: 250, size: 52 },
       ],
       moves: [
@@ -149,22 +116,22 @@ function buildMissions() {
       ],
     },
     {
-      id: "cantina",
+      id: "return",
       theme: "mars",
       start: { x: 86, y: 520, heading: 0, color: "#f47b20" },
       points: [
-        { x: 260, y: 500, label: "Map", kind: "sample", action: "collect", objective: "Collect star map fragment" },
-        { x: 420, y: 365, label: "Part", kind: "sample", action: "collect", objective: "Collect droid repair part" },
-        { x: 610, y: 260, label: "Code", kind: "satellite", action: "flash", code: "orange-blue-white", objective: "Flash orange-blue-white at the cantina beacon" },
-        { x: 800, y: 175, label: "Exit", kind: "dock", action: "collect", objective: "Collect exit clearance" },
+        { x: 260, y: 500, label: "Tube", kind: "sample", action: "collect", objective: "Collect the sealed sample tube" },
+        { x: 420, y: 365, label: "Sensor", kind: "sample", action: "collect", objective: "Collect the surface sensor pack" },
+        { x: 610, y: 260, label: "Mast", kind: "satellite", action: "flash", code: "orange-blue-white", objective: "Flash orange-blue-white at the weather mast" },
+        { x: 800, y: 175, label: "Capsule", kind: "dock", action: "collect", objective: "Collect the return capsule clearance tag" },
       ],
       hazards: [
         { x: 312, y: 410, w: 72, h: 140, kind: "dust" },
         { x: 505, y: 300, w: 72, h: 118, kind: "debris" },
-        { x: 694, y: 170, w: 50, h: 164, kind: "asteroid" },
+        { x: 694, y: 170, w: 50, h: 164, kind: "rock" },
       ],
       decorations: [
-        { kind: "habitat", x: 100, y: 500, label: "Cantina" },
+        { kind: "habitat", x: 100, y: 500, label: "Depot" },
         { kind: "crater", x: 680, y: 430, size: 44 },
       ],
       moves: [
@@ -177,10 +144,10 @@ function buildMissions() {
   ];
 
   const rankNames = [
-    ["Rebel Base Evacuation", "Hyperspace Relay Repair", "Jakku Salvage Run", "Cantina Courier"],
-    ["Starkiller Shield Codes", "Crait Relay Dash", "Ahch-To Supply Run", "Resistance Docking Loop"],
-    ["Kijimi Signal Puzzle", "Endor Debris Sweep", "Exegol Wayfinder Hunt", "Falcon Repair Relay"],
-    ["Death Star Trench Logic", "Hoth Echo Rescue", "Tatooine Twin-Sun Route", "Final Resistance Trial"],
+    ["Landing Zone Beacon Check", "Solar Relay Alignment", "Starter Sample Sweep", "Depot Route Test"],
+    ["Dust Basin Signal Run", "Ridge Relay Link", "Ice Pocket Retrieval", "Habitat Supply Loop"],
+    ["Crater Edge Logic", "Canyon Sensor Sweep", "Delta Core Pickup", "Weather Mast Signal"],
+    ["Return Capsule Prep", "Lava Tube Mapping", "Plateau Sample Chain", "Earth Uplink Final"],
   ];
 
   return ranks.flatMap((rank, rankIndex) =>
@@ -230,10 +197,10 @@ function makeDifficultyRoute(route, rankIndex) {
 
 function makeYear8Route(route, routeIndex, rankIndex) {
   const labels = [
-    ["Resistance Supply", "Beacon"],
-    ["Droid Toolkit", "Relay"],
-    ["Hyperdrive Scrap", "Signal"],
-    ["Holomap", "Gate"],
+    ["Supply Crate", "Beacon"],
+    ["Tool Kit", "Relay"],
+    ["Core Sample", "Signal"],
+    ["Sample Tube", "Gate"],
   ][routeIndex];
   const code = rankIndex === 2 ? "orange-blue" : "blue-orange";
   const lastStep = rankIndex === 2 ? 3 : 4;
@@ -272,8 +239,8 @@ function makeYear8Route(route, routeIndex, rankIndex) {
       step: index + 1,
     })),
     hazards: [
-      { x: 372, y: 180, w: 70, h: 95, kind: routeIndex % 2 ? "debris" : "asteroid" },
-      { x: 680, y: 410, w: 92, h: 70, kind: routeIndex % 2 ? "radiation" : "dust" },
+      { x: 372, y: 180, w: 70, h: 95, kind: routeIndex % 2 ? "debris" : "rock" },
+      { x: 680, y: 410, w: 92, h: 70, kind: routeIndex % 2 ? "sand" : "dust" },
       ...(rankIndex === 3 ? [{ x: 500, y: 260, w: 55, h: 105, kind: "debris" }] : []),
     ],
     decorations: [
@@ -292,28 +259,28 @@ function makeYear8Route(route, routeIndex, rankIndex) {
 function makeStory(rankIndex, routeIndex) {
   const stories = [
     [
-      "Rebel command has found a narrow launch corridor. BB-8 must reach the escape pods and flash the correct launch code before Imperial scouts arrive.",
-      "A hyperspace message is breaking up. BB-8 needs to reactivate the relay markers so the Resistance fleet can hear the signal.",
-      "The Jakku market has hidden droid parts in old wreckage. BB-8 must collect the supplies before scavengers lock the gates.",
-      "A cantina contact has left a route through the back alleys. BB-8 must collect the package and signal the safe exit.",
+      "Your rover has just touched down on the edge of a new exploration zone. Mission control needs the landing beacons checked before the rest of the science team can unload equipment, so your code must guide the rover to each marker and send the correct signal back to base.",
+      "Overnight temperatures on Mars have knocked out part of the solar relay network. The rover is the only machine close enough to reactivate the towers, and the base cannot upload new weather data until the correct signals are sent from each relay point.",
+      "The geology team has identified a small patch of interesting surface material near the landing site. If the rover can collect the first rock, ice, and soil samples before the dust picks up, scientists on Earth will be able to decide where the next major dig should happen.",
+      "A depot run has been scheduled before the next communication window closes. The rover needs to collect field gear, confirm the weather mast is working, and secure the return tag so the science team can safely plan tomorrow's expedition.",
     ],
     [
-      "Starkiller Base shields are cycling. BB-8 must flash the shield codes in order while dodging security barriers.",
-      "The Crait base is under pressure. BB-8 must cross the relay line and collect clearance for the final door.",
-      "Ahch-To supplies are scattered between island markers. BB-8 must collect each cache without rolling into danger zones.",
-      "The Resistance hangar is crowded with debris. BB-8 must finish the docking loop and bring back the clearance chip.",
+      "The next survey area sits beyond a dust basin where visibility changes quickly. Your rover has to weave through rough ground, reach each checkpoint in order, and transmit the right code so the mapping team can mark a safe route for future missions.",
+      "A communications ridge connects the main base to a remote science station, but several relays have dropped out. The rover must climb the route, restore each relay before the weather shifts, and bring back the stored data package for the engineers to review.",
+      "Radar scans have detected frozen water just below the surface in a hazardous patch of terrain. The rover needs careful programming here because one wrong move into a storm zone could cost the sample, and this ice could help future astronauts survive on Mars.",
+      "The habitat team is running low on a few key tools and sensor packs needed for their next field repair. Your rover is being used as the delivery unit, so it must collect the right items, check the mast signal, and secure the capsule tag before returning.",
     ],
     [
-      "Kijimi contacts use a simple rule: collect supplies first, flash the beacon last. Use a loop and if / else to follow the rule.",
-      "Endor wreckage has toolkits and one relay. Use a loop so BB-8 repeats the route, then choose the right command with if / else.",
-      "The wayfinder trail has salvage caches and one signal point. BB-8 needs loop logic to process each stop.",
-      "The Falcon repair route has parts first and a gate code last. A short loop and one if / else is enough.",
+      "The rover is working along the edge of a crater where the driving pattern repeats at each stop. Mission control wants you to program it like a real engineer would: use a loop to repeat the movement and an if / else to decide whether the rover should collect material or send a signal.",
+      "A short sensor route has been set up through a narrow canyon to test whether the rover can follow repeated instructions reliably. At one point it must pick up a toolkit, and at the other it must activate a relay, so your code has to make the right choice at the right step.",
+      "Scientists have marked a compact route for collecting one core sample and then reporting back to a final signal post. This mission is designed to feel like a real robotic field routine where the rover repeats a movement pattern but changes jobs at the final checkpoint.",
+      "The weather mast team needs one last test before the forecast system can be trusted for longer journeys. Program the rover to collect the required item first, then send the final signal, using clear logic that another engineer could easily read and check.",
     ],
     [
-      "The trench route is busier now, but the rule is still simple: collect until the final step, then flash the code.",
-      "Echo Base has more obstacles on the floor. BB-8 should use the same loop pattern and stay clear of the hazard blocks.",
-      "Tatooine's twin-sun route adds one more collection stop before the signal. Keep the Python logic readable.",
-      "The final trial checks the whole skill set: collect items, dodge hazards, then flash the last signal with a simple if / else.",
+      "The return capsule is almost ready for launch, but the final preparation checklist still needs one item collected and one signal confirmed. Your rover is handling both tasks while moving through a cramped area of rough ground, just like a real last-minute mission on Mars.",
+      "A lava tube near the base has been chosen for a trial mapping mission because it may one day shelter astronauts from harsh weather. The rover must follow a repeated movement pattern through the entry route and make the correct decision at each stop without scraping the walls.",
+      "A science team on the plateau has queued a chain of sample jobs before the next communications pass. The rover must gather the materials in order and then send the final signal, showing that your code can manage repeated actions without becoming messy or hard to follow.",
+      "This is the final Earth uplink mission, where the rover must complete its route, protect the science payload, and send the last confirmation needed for data return. If your program works, the mission team can transmit the results back to Earth and officially mark the expedition as a success.",
     ],
   ];
   return stories[rankIndex][routeIndex];
@@ -331,34 +298,34 @@ function makeHint(rankIndex, routeIndex, points) {
   if (flashPoint) {
     return `Each target needs a colour signal. Roll to the target, then use flash_colour_code("${flashPoint.code}") or the code shown above that target.`;
   }
-  return "Roll to each target in order and use collect() when BB-8 reaches the item.";
+  return "Roll to each target in order and use collect() when the rover reaches the item.";
 }
 
 function makeBrief(rankIndex, routeIndex) {
   const briefs = [
     [
-      "Imperial probes are closing in. Guide BB-8 to each escape pod and flash the launch colour codes.",
-      "The Resistance relay network is scrambled. Flash each beacon code, then collect docking clearance.",
-      "BB-8 needs spare parts from the desert wreckage. Roll to each item and use collect().",
-      "A cantina contact left supplies along a risky route. Collect each item and flash the exit beacon.",
+      "Drive to each beacon and flash the colour code that confirms the landing zone map.",
+      "Restore the solar relay network by flashing the right codes, then collect the depot data package.",
+      "Collect each Mars sample in order while steering around rough dust terrain.",
+      "Gather depot gear, flash the weather mast, and collect the return clearance tag.",
     ],
     [
-      "Shield doors will only open when BB-8 flashes the right colour sequence at each pod.",
-      "Cross the salt plain, repair three relays, and collect the final docking clearance.",
-      "Carry supplies between island markers by collecting each cache in order.",
-      "Trace the docking loop, use colour codes at relay points, and collect the return clearance.",
+      "Send signal codes across the dust basin and avoid terrain hazards on the way.",
+      "Reconnect the ridge relays in order, then collect the data package from the depot.",
+      "Recover the ice and soil samples without driving into the dust storms.",
+      "Follow the habitat loop, collect the field gear, signal the mast, and secure the capsule tag.",
     ],
     [
       "Two checkpoints only: collect the supply, then use a loop and if / else to flash the beacon.",
-      "Two checkpoints only: collect the toolkit, then use a loop and if / else to repair the relay.",
-      "Two checkpoints only: collect the scrap, then use a loop and if / else to send the signal.",
-      "Two checkpoints only: collect the map, then use a loop and if / else to open the gate.",
+      "Two checkpoints only: collect the toolkit, then use a loop and if / else to activate the relay.",
+      "Two checkpoints only: collect the core sample, then use a loop and if / else to send the signal.",
+      "Two checkpoints only: collect the sample tube, then use a loop and if / else to open the gate.",
     ],
     [
       "Final practice: two checkpoints, one collect command, one colour flash, one simple loop, one if / else.",
       "Final practice: collect first, flash second, and keep the loop and if / else easy to read.",
       "Final practice: use a counted loop to decide between collect() and flash_colour_code().",
-      "Final practice: a short two-step trial designed for Year 8 loop and branching practice.",
+      "Final practice: a short two-step Mars mission designed for Year 8 loop and branching practice.",
     ],
   ];
   return briefs[rankIndex][routeIndex];
@@ -408,13 +375,14 @@ let abortRun = false;
 let running = false;
 let commandQueue = Promise.resolve();
 let selectedMentor = null;
+let studentName = "";
 const completedMissions = new Set();
-const unlockedHints = new Set([missions[0].id]);
-let unlockedRankIndex = 0;
-const solvedRanks = new Set();
-const rankLetters = rankCodeWords.map(() => new Set());
-const rankAttemptsLeft = rankCodeWords.map(() => 4);
-const finnSavedGuessRanks = new Set();
+const savedMissionCode = new Map();
+const missionDrafts = new Map();
+const unlockedHints = new Set();
+const awardedCertificates = new Set();
+let unlockedRankIndex = 3;
+let lastMissionId = missions[0].id;
 
 function resetRobot() {
   robot = {
@@ -433,7 +401,6 @@ function resetRobot() {
     crashed: false,
     message: "",
   };
-  if (selectedMentor) selectedMentor.setup(robot);
   abortRun = false;
   updateMissionProgress();
   draw();
@@ -490,10 +457,23 @@ function drawRoundedRect(x, y, w, h, r) {
   ctx.fill();
 }
 
+function headingToCanvasRadians(heading) {
+  return ((heading - 90) * Math.PI) / 180;
+}
+
+function headingToUnitVector(heading) {
+  const radians = headingToCanvasRadians(heading);
+  return {
+    x: Math.cos(radians),
+    y: Math.sin(radians),
+  };
+}
+
 function draw() {
   const rect = canvas.getBoundingClientRect();
   const scene = getSceneMetrics();
   ctx.clearRect(0, 0, rect.width, rect.height);
+  updateCompass();
 
   const sky = ctx.createLinearGradient(0, 0, 0, rect.height);
   sky.addColorStop(0, "#070910");
@@ -508,6 +488,17 @@ function draw() {
   drawMissionArt(scene);
   drawTrail(scene);
   drawRobot(scene);
+}
+
+function updateCompass() {
+  if (!robot) return;
+  const heading = ((Math.round(robot.heading) % 360) + 360) % 360;
+  if (compassNeedle) {
+    compassNeedle.style.transform = `translate(-50%, -100%) rotate(${heading}deg)`;
+  }
+  if (headingReadout) {
+    headingReadout.textContent = `Heading: ${heading}°`;
+  }
 }
 
 function drawStarfield(rect) {
@@ -565,13 +556,13 @@ function drawMissionMat(scene) {
   ctx.closePath();
   ctx.fill();
 
-  ctx.fillStyle = currentMission.theme === "mars" ? "#3a241c" : "#151f26";
-  ctx.strokeStyle = "#50b8ff";
+  ctx.fillStyle = currentMission.theme === "mars" ? "#4a2d1d" : "#1e2b31";
+  ctx.strokeStyle = currentMission.theme === "mars" ? "#f7b267" : "#50b8ff";
   ctx.lineWidth = 2;
   drawRoundedRect(floorX, floorY, floorW, floorH, 8);
   ctx.stroke();
 
-  ctx.strokeStyle = currentMission.theme === "mars" ? "rgba(244, 123, 32, 0.2)" : "rgba(80, 184, 255, 0.22)";
+  ctx.strokeStyle = currentMission.theme === "mars" ? "rgba(247, 178, 103, 0.18)" : "rgba(80, 184, 255, 0.22)";
   ctx.lineWidth = 1;
   for (let x = 0; x <= WORLD.width; x += 92) {
     const start = worldToCanvas({ x, y: 0 }, 0, scene);
@@ -612,12 +603,12 @@ function drawMissionArt(scene) {
 }
 
 function drawHazard(hazard, scene) {
-  if (hazard.kind === "asteroid") {
-    drawAsteroidField(hazard, scene);
+  if (hazard.kind === "rock" || hazard.kind === "asteroid") {
+    drawRockField(hazard, scene);
     return;
   }
-  if (hazard.kind === "radiation") {
-    drawRadiationZone(hazard, scene);
+  if (hazard.kind === "sand" || hazard.kind === "radiation") {
+    drawSandTrap(hazard, scene);
     return;
   }
   if (hazard.kind === "dust") {
@@ -675,8 +666,8 @@ function drawHazardBlock(hazard, scene, topColor = "#d33f49", sideColor = "#a823
   }
 }
 
-function drawAsteroidField(hazard, scene) {
-  drawHazardBlock(hazard, scene, "#5d6570", "#303843");
+function drawRockField(hazard, scene) {
+  drawHazardBlock(hazard, scene, "#7f6757", "#4c3a31");
   const count = Math.max(4, Math.round((hazard.w + hazard.h) / 55));
   for (let i = 0; i < count; i += 1) {
     const rock = {
@@ -685,25 +676,25 @@ function drawAsteroidField(hazard, scene) {
     };
     const point = worldToCanvas(rock, 42, scene);
     const radius = (9 + (i % 3) * 4) * scene.scale;
-    ctx.fillStyle = i % 2 ? "#8b95a1" : "#6e7782";
+    ctx.fillStyle = i % 2 ? "#b48b6a" : "#8d684e";
     ctx.beginPath();
     ctx.ellipse(point.x, point.y, radius * 1.25, radius, 0.25, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = "#c3c9d0";
+    ctx.strokeStyle = "#e4c7ac";
     ctx.lineWidth = 1;
     ctx.stroke();
   }
 }
 
-function drawRadiationZone(hazard, scene) {
-  drawHazardBlock(hazard, scene, "#f5b942", "#8b620c");
+function drawSandTrap(hazard, scene) {
+  drawHazardBlock(hazard, scene, "#d59a52", "#8f5e2a");
   const center = worldToCanvas({ x: hazard.x + hazard.w / 2, y: hazard.y + hazard.h / 2 }, 44, scene);
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.72)";
+  ctx.strokeStyle = "rgba(255, 234, 199, 0.72)";
   ctx.lineWidth = 3;
   for (let i = 0; i < 4; i += 1) {
     const radius = (22 + i * 18) * scene.scale;
     ctx.beginPath();
-    ctx.arc(center.x, center.y, radius, Math.PI * 1.1, Math.PI * 1.9);
+    ctx.arc(center.x, center.y, radius, Math.PI * 0.9, Math.PI * 1.85);
     ctx.stroke();
   }
 }
@@ -786,22 +777,32 @@ function drawColorCodeChips(code, point, radius) {
 
 function drawCapsule(beacon, complete, scene) {
   const { point, radius } = drawTargetBase(beacon, complete, scene);
-  ctx.fillStyle = complete ? "#ddfff7" : "#eef8f2";
-  drawRoundedRect(point.x - radius * 0.35, point.y - radius * 0.95, radius * 0.7, radius * 1.2, radius * 0.28);
-  ctx.fillStyle = "#35a7ff";
+  ctx.fillStyle = complete ? "#effff6" : "#e7efe9";
+  drawRoundedRect(point.x - radius * 0.18, point.y - radius * 1.02, radius * 0.36, radius * 1.1, radius * 0.16);
+  ctx.fillStyle = "#6bd2ff";
+  ctx.fillRect(point.x - radius * 0.58, point.y - radius * 0.42, radius * 1.16, radius * 0.12);
+  ctx.strokeStyle = "#c8f0ff";
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(point.x, point.y - radius * 0.46, radius * 0.18, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.moveTo(point.x, point.y - radius * 1.02);
+  ctx.lineTo(point.x, point.y - radius * 1.34);
+  ctx.stroke();
   drawTargetLabel(beacon.label, point, radius);
 }
 
 function drawSatellite(beacon, complete, scene) {
   const { point, radius } = drawTargetBase(beacon, complete, scene);
-  ctx.fillStyle = complete ? "#ddfff7" : "#d8e4ff";
-  drawRoundedRect(point.x - radius * 0.28, point.y - radius * 0.28, radius * 0.56, radius * 0.56, 4);
-  ctx.fillStyle = "#35a7ff";
-  ctx.fillRect(point.x - radius * 1.15, point.y - radius * 0.18, radius * 0.72, radius * 0.36);
-  ctx.fillRect(point.x + radius * 0.43, point.y - radius * 0.18, radius * 0.72, radius * 0.36);
+  ctx.fillStyle = complete ? "#e6fff6" : "#cdd7de";
+  drawRoundedRect(point.x - radius * 0.2, point.y - radius * 0.7, radius * 0.4, radius * 0.95, 4);
+  ctx.fillStyle = "#2db4d6";
+  ctx.fillRect(point.x - radius * 0.95, point.y - radius * 0.46, radius * 0.58, radius * 0.2);
+  ctx.fillRect(point.x + radius * 0.37, point.y - radius * 0.46, radius * 0.58, radius * 0.2);
+  ctx.strokeStyle = "#eef8ff";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(point.x, point.y - radius * 0.7);
+  ctx.lineTo(point.x + radius * 0.2, point.y - radius * 1.08);
+  ctx.stroke();
   drawTargetLabel(beacon.label, point, radius);
 }
 
@@ -810,25 +811,26 @@ function drawDock(beacon, complete, scene) {
   ctx.strokeStyle = complete ? "#9affea" : "#ffffff";
   ctx.lineWidth = 4;
   ctx.strokeRect(point.x - radius * 0.58, point.y - radius * 0.42, radius * 1.16, radius * 0.84);
-  ctx.fillStyle = complete ? "#9affea" : "#f5b942";
-  ctx.fillRect(point.x - radius * 0.34, point.y - radius * 0.12, radius * 0.68, radius * 0.24);
+  ctx.fillStyle = complete ? "#9affea" : "#f3c178";
+  ctx.fillRect(point.x - radius * 0.46, point.y - radius * 0.14, radius * 0.92, radius * 0.28);
+  ctx.fillStyle = "#5f4638";
+  ctx.fillRect(point.x - radius * 0.18, point.y - radius * 0.54, radius * 0.36, radius * 0.34);
   drawTargetLabel(beacon.label, point, radius);
 }
 
 function drawSample(beacon, complete, scene) {
   const { point, radius } = drawTargetBase(beacon, complete, scene);
-  ctx.fillStyle = beacon.label === "Scrap" ? "#9aa0a8" : beacon.label === "Fuel" ? "#50b8ff" : "#f47b20";
+  ctx.fillStyle = beacon.label === "Ice" ? "#9fdfff" : beacon.label === "Soil" ? "#cf7d43" : "#9f8e7a";
   ctx.beginPath();
-  ctx.moveTo(point.x, point.y - radius * 0.72);
-  ctx.lineTo(point.x + radius * 0.52, point.y - radius * 0.1);
-  ctx.lineTo(point.x + radius * 0.28, point.y + radius * 0.56);
-  ctx.lineTo(point.x - radius * 0.46, point.y + radius * 0.46);
-  ctx.lineTo(point.x - radius * 0.62, point.y - radius * 0.22);
-  ctx.closePath();
+  ctx.arc(point.x, point.y, radius * 0.46, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = complete ? "#9affea" : "#ffffff";
   ctx.lineWidth = 2;
   ctx.stroke();
+  ctx.fillStyle = "rgba(255,255,255,0.28)";
+  ctx.beginPath();
+  ctx.arc(point.x - radius * 0.12, point.y - radius * 0.12, radius * 0.16, 0, Math.PI * 2);
+  ctx.fill();
   drawTargetLabel(beacon.label, point, radius);
 }
 
@@ -886,7 +888,7 @@ function drawHabitat(item, scene) {
   ctx.lineTo(point.x - size * 0.55, point.y + size * 0.35);
   ctx.closePath();
   ctx.fill();
-  ctx.fillStyle = "#f47b20";
+  ctx.fillStyle = "#f7b267";
   ctx.fillRect(point.x - size * 0.72, point.y + size * 0.06, size * 1.44, size * 0.16);
   drawSmallLabel(item.label, point.x, point.y + size * 0.6);
 }
@@ -896,7 +898,7 @@ function drawCommandPost(item, scene) {
   const size = 42 * scene.scale;
   ctx.fillStyle = "#d8d4c7";
   drawRoundedRect(point.x - size * 0.5, point.y - size * 0.36, size, size * 0.72, 6);
-  ctx.strokeStyle = "#50b8ff";
+  ctx.strokeStyle = "#6bd2ff";
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(point.x, point.y - size * 0.36);
@@ -930,44 +932,26 @@ function drawTrail(scene) {
 
 function drawRobot(scene) {
   const ground = worldToCanvas(robot, 0, scene);
-  const point = worldToCanvas(robot, robotRadius * 0.82, scene);
-  const radius = robotRadius * scene.scale * 1.18;
-  const headingRadians = (robot.heading * Math.PI) / 180;
-  const arrowX = Math.cos(headingRadians);
-  const arrowY = Math.sin(headingRadians) * scene.ySquash;
+  const point = worldToCanvas(robot, robotRadius * 0.72, scene);
+  const radius = robotRadius * scene.scale;
+  const headingRadians = headingToCanvasRadians(robot.heading);
+  const headingVector = headingToUnitVector(robot.heading);
+  const arrowX = headingVector.x;
+  const arrowY = headingVector.y * scene.ySquash;
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.42)";
   ctx.beginPath();
-  ctx.ellipse(ground.x, ground.y + 10, radius * 1.18, radius * 0.44, 0, 0, Math.PI * 2);
+  ctx.ellipse(ground.x, ground.y + 10, radius * 1.5, radius * 0.52, 0, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.save();
-  const body = ctx.createRadialGradient(
-    point.x - radius * 0.34,
-    point.y - radius * 0.42,
-    radius * 0.12,
-    point.x,
-    point.y,
-    radius,
-  );
-  body.addColorStop(0, "#ffffff");
-  body.addColorStop(0.58, "#f4f0df");
-  body.addColorStop(1, "#8c887b");
-  ctx.fillStyle = body;
-  ctx.beginPath();
-  ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = "#f9f3df";
-  ctx.lineWidth = 3;
-  ctx.stroke();
-
-  drawBb8BodyPanels(point, radius, scene);
-
-  const headCenter = {
-    x: point.x + arrowX * radius * 0.28,
-    y: point.y - radius * 0.88 + arrowY * radius * 0.08,
-  };
-  drawBb8Head(headCenter, radius, arrowX, arrowY);
+  ctx.translate(point.x, point.y);
+  ctx.rotate(headingRadians);
+  drawRoverBody(radius);
+  drawRoverWheels(radius);
+  drawRoverMast(radius);
+  ctx.rotate(-headingRadians);
+  ctx.translate(-point.x, -point.y);
 
   ctx.strokeStyle = robot.color;
   ctx.lineWidth = Math.max(2, radius * 0.08);
@@ -991,81 +975,47 @@ function drawRobot(scene) {
   }
 }
 
-function drawBb8BodyPanels(point, radius, scene) {
-  const orange = robot.flashing || "#f47b20";
-  const gray = "#6f7882";
-  const panelSpots = [
-    { x: -0.34, y: -0.24, r: 0.31 },
-    { x: 0.38, y: 0.02, r: 0.27 },
-    { x: -0.08, y: 0.42, r: 0.24 },
-  ];
-
-  for (const spot of panelSpots) {
-    const x = point.x + spot.x * radius;
-    const y = point.y + spot.y * radius;
-    const r = spot.r * radius;
-    ctx.strokeStyle = orange;
-    ctx.lineWidth = Math.max(3, radius * 0.11);
-    ctx.beginPath();
-    ctx.ellipse(x, y, r, r * scene.ySquash, 0.15, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.strokeStyle = gray;
-    ctx.lineWidth = Math.max(1, radius * 0.035);
-    ctx.beginPath();
-    ctx.ellipse(x, y, r * 0.48, r * scene.ySquash * 0.46, 0.15, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-
-  ctx.strokeStyle = "rgba(111, 120, 130, 0.72)";
-  ctx.lineWidth = Math.max(1, radius * 0.035);
-  ctx.beginPath();
-  ctx.arc(point.x, point.y, radius * 0.72, Math.PI * 0.08, Math.PI * 0.68);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(point.x, point.y, radius * 0.64, Math.PI * 1.08, Math.PI * 1.78);
-  ctx.stroke();
+function drawRoverBody(radius) {
+  const body = ctx.createLinearGradient(0, -radius, 0, radius);
+  body.addColorStop(0, "#efe8d6");
+  body.addColorStop(1, "#a2876f");
+  ctx.fillStyle = body;
+  drawRoundedRect(-radius * 0.95, -radius * 0.36, radius * 1.9, radius * 0.88, 8);
+  ctx.fillStyle = robot.flashing || "#f47b20";
+  ctx.fillRect(-radius * 0.42, -radius * 0.18, radius * 0.84, radius * 0.16);
+  ctx.fillStyle = "#6e7176";
+  ctx.fillRect(-radius * 0.22, radius * 0.04, radius * 0.44, radius * 0.16);
 }
 
-function drawBb8Head(center, bodyRadius, arrowX, arrowY) {
-  const headWidth = bodyRadius * 0.92;
-  const headHeight = bodyRadius * 0.52;
-  const headTop = center.y - headHeight * 0.52;
+function drawRoverWheels(radius) {
+  ctx.fillStyle = "#35393f";
+  const wheelX = radius * 0.88;
+  const wheelY = radius * 0.44;
+  const wheelW = radius * 0.34;
+  const wheelH = radius * 0.22;
+  [
+    [-wheelX, -wheelY],
+    [wheelX - wheelW, -wheelY],
+    [-wheelX, wheelY],
+    [wheelX - wheelW, wheelY],
+  ].forEach(([x, y]) => {
+    ctx.fillRect(x, y, wheelW, wheelH);
+  });
+}
 
-  ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+function drawRoverMast(radius) {
+  ctx.strokeStyle = "#d9dde2";
+  ctx.lineWidth = Math.max(2, radius * 0.07);
   ctx.beginPath();
-  ctx.ellipse(center.x, center.y + headHeight * 0.38, headWidth * 0.48, headHeight * 0.22, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#f4f0df";
-  ctx.beginPath();
-  ctx.arc(center.x, center.y, headWidth * 0.5, Math.PI, 0);
-  ctx.lineTo(center.x + headWidth * 0.5, center.y + headHeight * 0.28);
-  ctx.quadraticCurveTo(center.x, center.y + headHeight * 0.5, center.x - headWidth * 0.5, center.y + headHeight * 0.28);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.strokeStyle = "#f47b20";
-  ctx.lineWidth = Math.max(2, bodyRadius * 0.07);
-  ctx.beginPath();
-  ctx.moveTo(center.x - headWidth * 0.38, center.y + headHeight * 0.08);
-  ctx.lineTo(center.x + headWidth * 0.38, center.y + headHeight * 0.08);
+  ctx.moveTo(radius * 0.22, -radius * 0.22);
+  ctx.lineTo(radius * 0.42, -radius * 0.82);
   ctx.stroke();
-
-  const eyeX = center.x + arrowX * bodyRadius * 0.16;
-  const eyeY = headTop + headHeight * 0.42 + arrowY * bodyRadius * 0.05;
-  ctx.fillStyle = "#111820";
   ctx.beginPath();
-  ctx.arc(eyeX, eyeY, bodyRadius * 0.12, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#35a7ff";
+  ctx.arc(radius * 0.46, -radius * 0.9, radius * 0.18, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = "#202a32";
   ctx.beginPath();
-  ctx.arc(eyeX + bodyRadius * 0.035, eyeY - bodyRadius * 0.035, bodyRadius * 0.035, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#111820";
-  ctx.beginPath();
-  ctx.arc(center.x - arrowX * bodyRadius * 0.2, eyeY + bodyRadius * 0.05, bodyRadius * 0.045, 0, Math.PI * 2);
+  ctx.arc(radius * 0.5, -radius * 0.9, radius * 0.08, 0, Math.PI * 2);
   ctx.fill();
 }
 
@@ -1093,9 +1043,20 @@ function populateMissions() {
     }
     const option = document.createElement("option");
     option.value = mission.id;
-    option.textContent = mission.name;
+    option.textContent = missionOptionLabel(mission);
     option.disabled = mission.rankIndex > unlockedRankIndex;
     groups.get(mission.rank).append(option);
+  });
+}
+
+function missionOptionLabel(mission) {
+  return completedMissions.has(mission.id) ? `★ ${mission.name}` : mission.name;
+}
+
+function refreshMissionOptionLabels() {
+  missionSelect.querySelectorAll("option").forEach((option) => {
+    const mission = missions.find((item) => item.id === option.value);
+    if (mission) option.textContent = missionOptionLabel(mission);
   });
 }
 
@@ -1108,19 +1069,21 @@ function refreshMissionLocks() {
 
 function loadMission(id) {
   const requestedMission = missions.find((mission) => mission.id === id) || missions[0];
-  currentMission = requestedMission.rankIndex <= unlockedRankIndex ? requestedMission : missions.find((mission) => mission.rankIndex === unlockedRankIndex);
+  currentMission = requestedMission;
+  lastMissionId = currentMission.id;
   missionSelect.value = currentMission.id;
   missionTitle.textContent = `${currentMission.rank}: ${currentMission.name}`;
   missionBrief.textContent = currentMission.brief;
   storyOutput.textContent = currentMission.story;
-  codeEditor.value = currentMission.starter;
+  codeEditor.value = missionDrafts.get(currentMission.id) || savedMissionCode.get(currentMission.id) || currentMission.starter;
   renderObjectives();
   clearLog();
   addLog(`Loaded ${currentMission.name}.`);
   resetRobot();
   updateHintUI();
-  updateMentorReadout();
-  updateRankWordUI();
+  updateStudentReadout();
+  updateCertificateUI();
+  persistProgress();
 }
 
 function renderObjectives() {
@@ -1128,20 +1091,29 @@ function renderObjectives() {
   currentMission.beacons.forEach((beacon, index) => {
     const item = document.createElement("li");
     item.dataset.index = String(index);
+    item.className = "objective-item pending";
+
+    const status = document.createElement("span");
+    status.className = "objective-status";
+    status.textContent = "○";
+
+    const text = document.createElement("span");
+    text.className = "objective-text";
     const commandHint =
       beacon.action === "flash"
         ? ` using flash_colour_code("${beacon.code}")`
         : beacon.action === "collect"
           ? " using collect()"
           : "";
-    item.textContent = `${beacon.objective || `Reach ${beacon.label}`}${commandHint}`;
+    text.textContent = `${beacon.objective || `Reach ${beacon.label}`}${commandHint}`;
+    item.append(status, text);
     objectiveList.append(item);
   });
   updateMissionProgress();
 }
 
 function updateHintUI() {
-  const hasMentorHint = selectedMentor?.id === "leia";
+  const hasMentorHint = selectedMentor?.id === "comms";
   const unlocked = hasMentorHint || unlockedHints.has(currentMission.id);
   hintBtn.disabled = !unlocked;
   hintOutput.textContent = unlocked
@@ -1150,18 +1122,19 @@ function updateHintUI() {
 }
 
 function showHint() {
-  const hasMentorHint = selectedMentor?.id === "leia";
+  const hasMentorHint = selectedMentor?.id === "comms";
   if (!hasMentorHint && !unlockedHints.has(currentMission.id)) {
     hintOutput.textContent = "This hint is still locked. Complete the previous mission first.";
     return;
   }
   hintOutput.textContent = currentMission.hint;
-  addLog(`${selectedMentor?.name || "Mentor"} shared a power hint.`);
+  addLog(`${selectedMentor?.name || "Specialist"} shared a power hint.`);
 }
 
 function completeMissionProgress() {
   if (completedMissions.has(currentMission.id)) return;
   completedMissions.add(currentMission.id);
+  refreshMissionOptionLabels();
   revealRankLetter(currentMission.rankIndex, currentMission.routeIndex);
   applyMentorRankPower(currentMission.rankIndex);
   const letter = rankCodeWords[currentMission.rankIndex][currentMission.routeIndex];
@@ -1181,10 +1154,10 @@ function completeMissionProgress() {
 
 function updateMentorReadout() {
   if (!selectedMentor) {
-    mentorReadout.textContent = "Choose a mentor to begin.";
+    mentorReadout.textContent = "";
     return;
   }
-  const passText = robot?.wallPasses ? ` ${robot.wallPasses} wall pass${robot.wallPasses === 1 ? "" : "es"} ready.` : "";
+  const passText = robot?.wallPasses ? ` ${robot.wallPasses} terrain pass${robot.wallPasses === 1 ? "" : "es"} ready.` : "";
   mentorReadout.textContent = `${selectedMentor.name}: ${selectedMentor.power}${passText}`;
 }
 
@@ -1196,9 +1169,9 @@ function revealRankLetter(rankIndex, letterIndex) {
 
 function applyMentorRankPower(rankIndex) {
   if (!selectedMentor) return;
-  if (selectedMentor.id === "luke") revealRankLetter(rankIndex, 0);
-  if (selectedMentor.id === "leia") revealRankLetter(rankIndex, 1);
-  if (selectedMentor.id === "rey" && completedMissionCount(rankIndex) >= 1) revealRankLetter(rankIndex, 2);
+  if (selectedMentor.id === "navigation") revealRankLetter(rankIndex, 0);
+  if (selectedMentor.id === "comms") revealRankLetter(rankIndex, 1);
+  if (selectedMentor.id === "geology" && completedMissionCount(rankIndex) >= 1) revealRankLetter(rankIndex, 2);
 }
 
 function completedMissionCount(rankIndex) {
@@ -1258,10 +1231,10 @@ function submitRankGuess() {
     return;
   }
 
-  if (selectedMentor?.id === "finn" && !finnSavedGuessRanks.has(rankIndex)) {
+  if (selectedMentor?.id === "systems" && !finnSavedGuessRanks.has(rankIndex)) {
     finnSavedGuessRanks.add(rankIndex);
-    rankGuessOutput.textContent = `Finn used First Order Codes. That wrong guess did not cost an attempt. Attempts left: ${rankAttemptsLeft[rankIndex]}.`;
-    addLog("Finn blocked one wrong rank-code attempt.", "success");
+    rankGuessOutput.textContent = `Systems Technician used the recovery patch. That wrong guess did not cost an attempt. Attempts left: ${rankAttemptsLeft[rankIndex]}.`;
+    addLog("Systems Technician blocked one wrong rank-code attempt.", "success");
     return;
   }
 
@@ -1278,7 +1251,11 @@ function updateMissionProgress() {
   scoreReadout.textContent = `${robot?.visited.size || 0} / ${goals} goals`;
   if (!robot) return;
   objectiveList.querySelectorAll("li").forEach((item) => {
-    item.classList.toggle("complete", robot.visited.has(Number(item.dataset.index)));
+    const complete = robot.visited.has(Number(item.dataset.index));
+    const status = item.querySelector(".objective-status");
+    item.classList.toggle("complete", complete);
+    item.classList.toggle("pending", !complete);
+    if (status) status.textContent = complete ? "★" : "○";
   });
   if (robot.crashed) {
     missionStatus.textContent = "Crashed";
@@ -1315,7 +1292,7 @@ function checkProgress() {
       if (robot.wallPasses > 0) {
         robot.wallPasses -= 1;
         robot.ignoredHazards.add(hazardIndex);
-        addLog(`${selectedMentor?.name || "Mentor"} helped BB-8 pass through a hazard. ${robot.wallPasses} pass${robot.wallPasses === 1 ? "" : "es"} left.`, "success");
+        addLog(`${selectedMentor?.name || "Specialist"} helped the rover pass through a hazard. ${robot.wallPasses} pass${robot.wallPasses === 1 ? "" : "es"} left.`, "success");
         updateMentorReadout();
         continue;
       }
@@ -1337,14 +1314,14 @@ function checkProgress() {
       robot.usedBoundaryPass = true;
       robot.x = Math.min(WORLD.width - robotRadius, Math.max(robotRadius, robot.x));
       robot.y = Math.min(WORLD.height - robotRadius, Math.max(robotRadius, robot.y));
-      addLog(`${selectedMentor?.name || "Mentor"} guided BB-8 back through the boundary. ${robot.wallPasses} pass${robot.wallPasses === 1 ? "" : "es"} left.`, "success");
+      addLog(`${selectedMentor?.name || "Specialist"} guided the rover back through the boundary. ${robot.wallPasses} pass${robot.wallPasses === 1 ? "" : "es"} left.`, "success");
       updateMentorReadout();
       updateMissionProgress();
       return;
     }
     robot.crashed = true;
     abortRun = true;
-    addLog("BB-8 left the mission mat.", "error");
+    addLog("The rover left the mission mat.", "error");
   }
 
   updateMissionProgress();
@@ -1405,9 +1382,9 @@ function roll(speed = 50, heading = robot.heading, seconds = 1) {
       const now = performance.now();
       const delta = (now - last) / 1000;
       last = now;
-      const radians = (safeHeading * Math.PI) / 180;
-      robot.x += Math.cos(radians) * pixelsPerSecond * delta;
-      robot.y += Math.sin(radians) * pixelsPerSecond * delta;
+      const direction = headingToUnitVector(safeHeading);
+      robot.x += direction.x * pixelsPerSecond * delta;
+      robot.y += direction.y * pixelsPerSecond * delta;
       robot.trail.push({ x: robot.x, y: robot.y });
       checkProgress();
       draw();
@@ -1471,7 +1448,7 @@ function collect() {
   return enqueueCommand(async () => {
     const beacon = currentMission.beacons[robot.visited.size];
     if (!beacon || robot.atBeaconIndex !== robot.visited.size) {
-      addLog("collect() only works when BB-8 is on the next mission target.", "error");
+      addLog("collect() only works when the rover is on the next mission target.", "error");
       return;
     }
     if (beacon.action !== "collect") {
@@ -1492,7 +1469,7 @@ function flashColorCode(code = "orange") {
     const beacon = currentMission.beacons[robot.visited.size];
     const normalized = normalizeColorCode(code);
     if (!beacon || robot.atBeaconIndex !== robot.visited.size) {
-      addLog("flash_colour_code() only works when BB-8 is on the next signal target.", "error");
+      addLog("flash_colour_code() only works when the rover is on the next signal target.", "error");
       return;
     }
     if (beacon.action !== "flash") {
@@ -1656,7 +1633,7 @@ function validateMissionConcepts(code) {
 async function runStudentCode() {
   if (running) return;
   if (!selectedMentor) {
-    addLog("Choose a mentor before starting the mission.", "error");
+    addLog("Enter your name before starting the mission.", "error");
     mentorOverlay.classList.remove("hidden");
     return;
   }
@@ -1705,6 +1682,7 @@ async function runStudentCode() {
     await commandQueue;
     await sleep(missionCompleteDelay);
     if (!robot.crashed && robot.visited.size === currentMission.beacons.length) {
+      savedMissionCode.set(currentMission.id, codeEditor.value);
       addLog("Mission complete. Nicely coded.", "success");
       completeMissionProgress();
     } else if (!robot.crashed && !abortRun) {
@@ -1730,39 +1708,271 @@ function stopRun() {
   updateMissionProgress();
 }
 
-function renderMentorChoices() {
-  mentorChoices.textContent = "";
-  mentors.forEach((mentor) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "mentor-choice";
-    button.innerHTML = `<strong>${mentor.name}</strong><span>${mentor.power}</span>`;
-    button.addEventListener("click", () => chooseMentor(mentor.id));
-    mentorChoices.append(button);
-  });
+function getStorageSnapshot() {
+  return {
+    studentName,
+    completedMissions: [...completedMissions],
+    savedMissionCode: Object.fromEntries(savedMissionCode),
+    missionDrafts: Object.fromEntries(missionDrafts),
+    unlockedHints: [...unlockedHints],
+    awardedCertificates: [...awardedCertificates],
+    lastMissionId,
+  };
 }
 
-function chooseMentor(id) {
-  selectedMentor = mentors.find((mentor) => mentor.id === id) || mentors[0];
-  mentorOverlay.classList.add("hidden");
-  applyMentorRankPower(currentMission.rankIndex);
-  resetRobot();
-  updateMentorReadout();
+function persistProgress() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(getStorageSnapshot()));
+}
+
+function hydrateProgress() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    studentName = data.studentName || "";
+    completedMissions.clear();
+    (data.completedMissions || []).forEach((id) => completedMissions.add(id));
+    savedMissionCode.clear();
+    Object.entries(data.savedMissionCode || {}).forEach(([id, code]) => savedMissionCode.set(id, code));
+    missionDrafts.clear();
+    Object.entries(data.missionDrafts || {}).forEach(([id, code]) => missionDrafts.set(id, code));
+    unlockedHints.clear();
+    if (Array.isArray(data.unlockedHints) && data.unlockedHints.length) {
+      data.unlockedHints.forEach((id) => unlockedHints.add(id));
+    } else {
+      missions.forEach((mission) => unlockedHints.add(mission.id));
+    }
+    awardedCertificates.clear();
+    (data.awardedCertificates || []).forEach((rank) => awardedCertificates.add(rank));
+    lastMissionId = data.lastMissionId || missions[0].id;
+  } catch (error) {
+    console.warn("Could not load saved progress", error);
+  }
+}
+
+function updateStudentReadout() {
+  mentorReadout.textContent = studentName
+    ? `${studentName} is logged in on this computer. Completed missions stay saved locally.`
+    : "";
+}
+
+function updateCompass() {
+  if (!robot) return;
+  const heading = ((Math.round(robot.heading) % 360) + 360) % 360;
+  if (compassNeedle) compassNeedle.style.transform = `translate(-50%, -100%) rotate(${heading}deg)`;
+  if (headingReadout) headingReadout.textContent = `Heading: ${heading}`;
+}
+
+function updateHintUI() {
+  const unlocked = unlockedHints.has(currentMission.id) || completedMissions.has(currentMission.id);
+  hintBtn.disabled = !unlocked;
+  hintOutput.textContent = unlocked
+    ? "Hint ready. Press Power Hint when you want help."
+    : "Locked. Complete more missions to unlock this hint.";
+}
+
+function updateCertificateUI() {
+  const rankIndex = currentMission.rankIndex;
+  const allComplete = allRankMissionsComplete(rankIndex);
+  const awarded = awardedCertificates.has(rankIndex);
+  rankWordOutput.textContent = `${currentMission.rank}: ${completedMissionCount(rankIndex)} of 4 missions complete.`;
+  rankGuessBtn.textContent = awarded ? "Download Again" : "Download Certificate";
+  rankGuessBtn.disabled = !allComplete || !studentName;
+  rankGuessOutput.textContent = !studentName
+    ? "Enter your name to personalise certificates."
+    : allComplete
+      ? "Certificate unlocked for this rank."
+      : "Complete all four missions in this rank to unlock the certificate.";
+}
+
+function drawCertificate(rankIndex) {
+  const missionRank = missions.find((mission) => mission.rankIndex === rankIndex)?.rank || `Rank ${rankIndex + 1}`;
+  const certCanvas = document.createElement("canvas");
+  certCanvas.width = 1600;
+  certCanvas.height = 1100;
+  const certCtx = certCanvas.getContext("2d");
+
+  const bg = certCtx.createLinearGradient(0, 0, certCanvas.width, certCanvas.height);
+  bg.addColorStop(0, "#0b1220");
+  bg.addColorStop(1, "#402515");
+  certCtx.fillStyle = bg;
+  certCtx.fillRect(0, 0, certCanvas.width, certCanvas.height);
+
+  certCtx.strokeStyle = "#f7c948";
+  certCtx.lineWidth = 16;
+  certCtx.strokeRect(44, 44, certCanvas.width - 88, certCanvas.height - 88);
+  certCtx.lineWidth = 4;
+  certCtx.strokeStyle = "#6bd2ff";
+  certCtx.strokeRect(78, 78, certCanvas.width - 156, certCanvas.height - 156);
+
+  certCtx.fillStyle = "#eef8f2";
+  certCtx.textAlign = "center";
+  certCtx.font = "700 46px Georgia, serif";
+  certCtx.fillText("Mars Rover Missions", certCanvas.width / 2, 180);
+  certCtx.font = "700 78px Georgia, serif";
+  certCtx.fillText("Certificate of Achievement", certCanvas.width / 2, 300);
+  certCtx.font = "500 34px Inter, Arial, sans-serif";
+  certCtx.fillText("This certifies that", certCanvas.width / 2, 420);
+  certCtx.font = "700 72px Georgia, serif";
+  certCtx.fillStyle = "#ffd0a8";
+  certCtx.fillText(studentName, certCanvas.width / 2, 535);
+  certCtx.fillStyle = "#eef8f2";
+  certCtx.font = "500 34px Inter, Arial, sans-serif";
+  certCtx.fillText("successfully completed all missions in", certCanvas.width / 2, 635);
+  certCtx.font = "700 54px Georgia, serif";
+  certCtx.fillText(missionRank, certCanvas.width / 2, 730);
+  certCtx.font = "500 28px Inter, Arial, sans-serif";
+  certCtx.fillText(`Awarded on ${new Date().toLocaleDateString("en-AU")}`, certCanvas.width / 2, 845);
+  certCtx.fillText("Mars Mission Training Program", certCanvas.width / 2, 900);
+
+  const link = document.createElement("a");
+  link.href = certCanvas.toDataURL("image/png");
+  link.download = `${studentName.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-${missionRank.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-certificate.png`;
+  link.click();
+}
+
+function downloadCurrentCertificate() {
+  const rankIndex = currentMission.rankIndex;
+  if (!studentName) {
+    rankGuessOutput.textContent = "Enter your name before downloading a certificate.";
+    mentorOverlay.classList.remove("hidden");
+    return;
+  }
+  if (!allRankMissionsComplete(rankIndex)) {
+    rankGuessOutput.textContent = "Complete all four missions in this rank before downloading the certificate.";
+    return;
+  }
+  awardedCertificates.add(rankIndex);
+  drawCertificate(rankIndex);
+  updateCertificateUI();
+  persistProgress();
+  addLog(`Certificate downloaded for ${currentMission.rank}.`, "success");
+}
+
+function completeMissionProgress() {
+  if (!completedMissions.has(currentMission.id)) {
+    completedMissions.add(currentMission.id);
+    refreshMissionOptionLabels();
+    addLog(`Mission saved as complete: ${currentMission.name}`, "success");
+  }
+  missions.forEach((mission) => unlockedHints.add(mission.id));
+  if (allRankMissionsComplete(currentMission.rankIndex) && !awardedCertificates.has(currentMission.rankIndex)) {
+    addLog(`All missions complete for ${currentMission.rank}. Certificate unlocked.`, "success");
+  }
   updateHintUI();
-  updateRankWordUI();
-  addLog(`${selectedMentor.name} is guiding BB-8. ${selectedMentor.power}`, "success");
+  updateCertificateUI();
+  persistProgress();
+}
+
+function updateMissionProgress() {
+  const goals = currentMission.beacons.length;
+  scoreReadout.textContent = `${robot?.visited.size || 0} / ${goals} goals`;
+  if (!robot) return;
+  objectiveList.querySelectorAll("li").forEach((item) => {
+    const complete = robot.visited.has(Number(item.dataset.index));
+    const status = item.querySelector(".objective-status");
+    item.classList.toggle("complete", complete);
+    item.classList.toggle("pending", !complete);
+    if (status) status.textContent = complete ? "★" : "○";
+  });
+  missionStatus.textContent = robot.crashed ? "Crashed" : robot.visited.size === goals ? "Mission complete" : running ? "Running" : "Ready";
+}
+
+async function runStudentCode() {
+  if (running) return;
+  if (!studentName) {
+    addLog("Enter your name before starting the mission.", "error");
+    mentorOverlay.classList.remove("hidden");
+    return;
+  }
+  running = true;
+  abortRun = false;
+  runBtn.disabled = true;
+  clearLog();
+  resetRobot();
+  commandQueue = Promise.resolve();
+  updateMissionProgress();
+
+  const conceptError = validateMissionConcepts(codeEditor.value);
+  if (conceptError) {
+    addLog(conceptError, "error");
+    running = false;
+    runBtn.disabled = false;
+    updateMissionProgress();
+    return;
+  }
+
+  const api = {
+    roll,
+    turn,
+    setHeading,
+    setColor,
+    flashColorCode,
+    flashColourCode,
+    set_heading: setHeading,
+    set_color: setColor,
+    flash_color_code: flashColorCode,
+    flash_colour_code: flashColorCode,
+    collect,
+    wait,
+    stop,
+    say,
+  };
+
+  try {
+    const translatedCode = translatePythonCode(codeEditor.value);
+    const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+    const studentProgram = new AsyncFunction(...Object.keys(api), `"use strict";\n${translatedCode}`);
+    await studentProgram(...Object.values(api));
+    await commandQueue;
+    await sleep(missionCompleteDelay);
+    if (!robot.crashed && robot.visited.size === currentMission.beacons.length) {
+      savedMissionCode.set(currentMission.id, codeEditor.value);
+      missionDrafts.set(currentMission.id, codeEditor.value);
+      addLog("Mission complete. Nicely coded.", "success");
+      completeMissionProgress();
+    } else if (!robot.crashed && !abortRun) {
+      addLog("Run finished. Some objectives are still waiting.");
+      persistProgress();
+    }
+  } catch (error) {
+    if (error.message !== "Run stopped") addLog(error.message, "error");
+  } finally {
+    running = false;
+    runBtn.disabled = false;
+    updateMissionProgress();
+    draw();
+  }
+}
+
+function saveStudentName() {
+  const nextName = (studentNameInput?.value || "").trim();
+  if (!nextName) {
+    addLog("Please enter your name to begin.", "error");
+    return;
+  }
+  studentName = nextName;
+  mentorOverlay.classList.add("hidden");
+  updateStudentReadout();
+  updateCertificateUI();
+  persistProgress();
+  addLog(`${studentName} is ready to continue the Mars rover missions.`, "success");
 }
 
 function boot() {
-  renderMentorChoices();
+  hydrateProgress();
+  missions.forEach((mission) => unlockedHints.add(mission.id));
   populateMissions();
+  refreshMissionOptionLabels();
+  refreshMissionLocks();
   missionSelect.addEventListener("change", () => loadMission(missionSelect.value));
   runBtn.addEventListener("click", runStudentCode);
   stopBtn.addEventListener("click", stopRun);
   hintBtn.addEventListener("click", showHint);
-  rankGuessBtn.addEventListener("click", submitRankGuess);
-  rankGuessInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") submitRankGuess();
+  rankGuessBtn.addEventListener("click", downloadCurrentCertificate);
+  document.querySelector("#saveNameBtn")?.addEventListener("click", saveStudentName);
+  document.querySelector("#studentNameInput")?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") saveStudentName();
   });
   codeEditor.addEventListener("keydown", (event) => {
     if (event.key !== "Tab") return;
@@ -1773,6 +1983,10 @@ function boot() {
     codeEditor.selectionStart = start + 2;
     codeEditor.selectionEnd = start + 2;
   });
+  codeEditor.addEventListener("input", () => {
+    missionDrafts.set(currentMission.id, codeEditor.value);
+    persistProgress();
+  });
   resetBtn.addEventListener("click", () => {
     abortRun = true;
     resetRobot();
@@ -1780,6 +1994,8 @@ function boot() {
   });
   resetCodeBtn.addEventListener("click", () => {
     codeEditor.value = currentMission.starter;
+    missionDrafts.set(currentMission.id, codeEditor.value);
+    persistProgress();
     addLog("Starter code restored.");
   });
   window.addEventListener("resize", () => {
@@ -1788,9 +2004,16 @@ function boot() {
   });
 
   resizeCanvasForDisplay();
-  loadMission(missions[0].id);
+  loadMission(lastMissionId);
   updateHintUI();
-  updateRankWordUI();
+  updateStudentReadout();
+  updateCertificateUI();
+  if (studentName) {
+    mentorOverlay.classList.add("hidden");
+    if (studentNameInput) studentNameInput.value = studentName;
+  } else {
+    mentorOverlay.classList.remove("hidden");
+  }
 }
 
 boot();

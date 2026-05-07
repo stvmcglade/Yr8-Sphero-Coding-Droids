@@ -91,6 +91,30 @@ button:disabled {
   margin-top: 16px;
 }
 
+.name-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.name-entry input {
+  min-height: 44px;
+  border: 1px solid #46605f;
+  border-radius: 8px;
+  background: #0c1316;
+  color: var(--ink);
+  padding: 0 12px;
+}
+
+.name-entry button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid rgba(80, 184, 255, 0.34);
+  background: rgba(80, 184, 255, 0.14);
+  color: #eef8f2;
+}
+
 .mentor-choice {
   display: grid;
   gap: 8px;
@@ -231,6 +255,103 @@ p {
   max-width: min(760px, 62vw);
 }
 
+.compass-card {
+  position: absolute;
+  z-index: 2;
+  right: 14px;
+  bottom: 14px;
+  width: 168px;
+  padding: 12px;
+  border: 1px solid rgba(80, 184, 255, 0.28);
+  border-radius: 8px;
+  background: rgba(10, 15, 18, 0.84);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.34);
+}
+
+.compass-face {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(247, 178, 103, 0.34);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(247, 178, 103, 0.12), transparent 40%),
+    rgba(255, 255, 255, 0.02);
+}
+
+.compass-face::before,
+.compass-face::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  transform: translate(-50%, -50%);
+}
+
+.compass-face::before {
+  width: 1px;
+  height: 86%;
+}
+
+.compass-face::after {
+  width: 86%;
+  height: 1px;
+}
+
+.compass-needle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 42%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f7c948 0%, #f47b20 55%, rgba(244, 123, 32, 0.18) 100%);
+  transform-origin: 50% calc(100% - 4px);
+  transform: translate(-50%, -100%) rotate(0deg);
+  box-shadow: 0 0 12px rgba(244, 123, 32, 0.32);
+}
+
+.compass-needle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #eef8f2;
+  transform: translateX(-50%);
+}
+
+.compass-label {
+  position: absolute;
+  color: #d7e3e9;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+}
+
+.compass-label.north { left: 50%; top: 11%; }
+.compass-label.north-east { left: 77%; top: 23%; }
+.compass-label.east { left: 89%; top: 50%; }
+.compass-label.south-east { left: 77%; top: 77%; }
+.compass-label.south { left: 50%; top: 89%; }
+.compass-label.south-west { left: 23%; top: 77%; }
+.compass-label.west { left: 11%; top: 50%; }
+.compass-label.north-west { left: 23%; top: 23%; }
+
+.heading-readout {
+  margin: 10px 0 0;
+  color: #ffd0a8;
+  font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-align: center;
+}
+
 .mission-select-wrap {
   display: grid;
   gap: 5px;
@@ -335,7 +456,8 @@ select {
 .command-list ul,
 .mission-card ol {
   margin: 0;
-  padding-left: 22px;
+  padding-left: 0;
+  list-style: none;
 }
 
 .story-output,
@@ -359,6 +481,10 @@ select {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
+}
+
+.rank-card .rank-guess-row {
+  grid-template-columns: 1fr;
 }
 
 #rankGuessInput {
@@ -386,6 +512,32 @@ select {
   color: var(--muted);
 }
 
+.command-list ul {
+  padding-left: 22px;
+  list-style: disc;
+}
+
+.objective-item {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 8px 10px;
+  border: 1px solid rgba(80, 184, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.objective-status {
+  color: #94a7b3;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.objective-text {
+  line-height: 1.45;
+}
+
 code {
   color: #74e7ff;
   font-family: "Cascadia Code", Consolas, "Courier New", monospace;
@@ -395,10 +547,12 @@ code {
 .mission-card li.complete {
   color: #a8dcff;
   font-weight: 800;
+  border-color: rgba(80, 184, 255, 0.34);
+  background: rgba(80, 184, 255, 0.08);
 }
 
-.mission-card li.complete::marker {
-  content: "done ";
+.mission-card li.complete .objective-status {
+  color: #f7c948;
 }
 
 .log-card {
@@ -457,6 +611,10 @@ code {
     flex-direction: column;
   }
 
+  .name-entry {
+    grid-template-columns: 1fr;
+  }
+
   .status-strip,
   .mission-select-wrap {
     width: 100%;
@@ -470,6 +628,10 @@ code {
   .arena-toolbar h2,
   .arena-toolbar p {
     max-width: 100%;
+  }
+
+  .compass-card {
+    width: 150px;
   }
 
   #arenaCanvas {
