@@ -355,8 +355,6 @@ for step in range(1, ${points.length + 1}):
   else:
     flash_colour_code("${flashPoint?.code || "orange-blue"}")
 
-say("Mission complete")
-
 stop()`;
   }
 
@@ -1449,11 +1447,13 @@ function collect() {
     const beacon = currentMission.beacons[robot.visited.size];
     if (!beacon || robot.atBeaconIndex !== robot.visited.size) {
       addLog("collect() only works when the rover is on the next mission target.", "error");
-      return;
+      abortRun = true;
+      throw new Error("Move the rover onto the target before using collect().");
     }
     if (beacon.action !== "collect") {
       addLog(`This target needs ${requiredCommandText(beacon)}, not collect().`, "error");
-      return;
+      abortRun = true;
+      throw new Error(`Wrong command for ${beacon.label}. Use ${requiredCommandText(beacon)}.`);
     }
     robot.message = "Collected";
     draw();
@@ -1470,11 +1470,13 @@ function flashColorCode(code = "orange") {
     const normalized = normalizeColorCode(code);
     if (!beacon || robot.atBeaconIndex !== robot.visited.size) {
       addLog("flash_colour_code() only works when the rover is on the next signal target.", "error");
-      return;
+      abortRun = true;
+      throw new Error("Move the rover onto the signal target before using flash_colour_code().");
     }
     if (beacon.action !== "flash") {
       addLog(`This target needs ${requiredCommandText(beacon)}, not a colour flash.`, "error");
-      return;
+      abortRun = true;
+      throw new Error(`Wrong command for ${beacon.label}. Use ${requiredCommandText(beacon)}.`);
     }
 
     const colors = normalized.split("-").filter(Boolean);
@@ -1492,6 +1494,8 @@ function flashColorCode(code = "orange") {
       completeCurrentGoal(`Signal accepted at ${beacon.label}`);
     } else {
       addLog(`Signal rejected. Expected ${beacon.code}.`, "error");
+      abortRun = true;
+      throw new Error(`Incorrect colour code at ${beacon.label}. Expected ${beacon.code}.`);
     }
     draw();
   });
